@@ -9,7 +9,60 @@ Globals:
   Function:
     Timeout: 60
 
+Parameters:
+  UsersDynamoDBName:
+    Type: String
+    Default: Users
+    Description: Name of users table
+
 Resources:
+  DynamoSamplePut:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: 'Put user into dynamoDB'
+      CodeUri: dynamo_sample_put/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      Environment:
+        Variables:
+          USER_TABLE: !Ref UsersDynamoDBName
+      Role: !GetAtt LambdaRole.Arn
+      Events:
+        CreateUser:
+          Type: Api
+          Properties:
+            Path: /put
+            Method: post
+  DynamoSampleGet:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: 'Get user from dynamoDB'
+      CodeUri: dynamo_sample_get/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      Environment:
+        Variables:
+          USER_TABLE: !Ref UsersDynamoDBName
+      Role: !GetAtt LambdaRole.Arn
+      Events:
+        CreateUser:
+          Type: Api
+          Properties:
+            Path: /get
+            Method: get
+  UserDynamoDB:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "username"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "username"
+          KeyType: "HASH"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      TableName: !Ref UsersDynamoDBName
   LambdaRole:
     Type: AWS::IAM::Role
     Properties:
@@ -27,32 +80,3 @@ Resources:
         - arn:aws:iam::aws:policy/AmazonS3FullAccess
         - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
         - arn:aws:iam::aws:policy/AmazonKinesisFullAccess
-  DynamoSamplePut:
-    Type: AWS::Serverless::Function
-    Properties:
-      Description: 'Put user into dynamoDB'
-      CodeUri: dynamo_sample_put/
-      Handler: app.lambda_handler
-      Runtime: python3.7
-      Role: !GetAtt LambdaRole.Arn
-      Events:
-        CreateUser:
-          Type: Api
-          Properties:
-            Path: /put
-            Method: post
-  DynamoSampleGet:
-    Type: AWS::Serverless::Function
-    Properties:
-      Description: 'Get user from dynamoDB'
-      CodeUri: dynamo_sample_get/
-      Handler: app.lambda_handler
-      Runtime: python3.7
-      Role: !GetAtt LambdaRole.Arn
-      Events:
-        CreateUser:
-          Type: Api
-          Properties:
-            Path: /get
-            Method: get
-
