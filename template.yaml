@@ -9,9 +9,24 @@ Globals:
   Function:
     Timeout: 60
 
-
-
 Resources:
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: UsersStackLambdaRole
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSLambdaExecute
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+        - arn:aws:iam::aws:policy/AmazonKinesisFullAccess
   DynamoSamplePut:
     Type: AWS::Serverless::Function
     Properties:
@@ -19,6 +34,7 @@ Resources:
       CodeUri: dynamo_sample_put/
       Handler: app.lambda_handler
       Runtime: python3.7
+      Role: !GetAtt LambdaRole.Arn
       Events:
         CreateUser:
           Type: Api
@@ -32,6 +48,7 @@ Resources:
       CodeUri: dynamo_sample_get/
       Handler: app.lambda_handler
       Runtime: python3.7
+      Role: !GetAtt LambdaRole.Arn
       Events:
         CreateUser:
           Type: Api
