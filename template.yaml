@@ -1,13 +1,14 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: >
-  dynamo-sample
-  Sample SAM Template for dynamo-sample
-
+Description: Dynamo sample
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
+    Runtime: python3.7
     Timeout: 60
+    Environment:
+      Variables:
+        USER_TABLE: !Ref UsersDynamoDBName
 
 Parameters:
   UsersDynamoDBName:
@@ -22,10 +23,6 @@ Resources:
       Description: 'Put user into dynamoDB'
       CodeUri: dynamo_sample_put/
       Handler: app.lambda_handler
-      Runtime: python3.7
-      Environment:
-        Variables:
-          USER_TABLE: !Ref UsersDynamoDBName
       Role: !GetAtt LambdaRole.Arn
       Events:
         CreateUser:
@@ -39,10 +36,6 @@ Resources:
       Description: 'Get user from dynamoDB'
       CodeUri: dynamo_sample_get/
       Handler: app.lambda_handler
-      Runtime: python3.7
-      Environment:
-        Variables:
-          USER_TABLE: !Ref UsersDynamoDBName
       Role: !GetAtt LambdaRole.Arn
       Events:
         CreateUser:
